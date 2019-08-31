@@ -1,209 +1,309 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from InstagramAPI import InstagramAPI
+import threading
+import random
 import time
-from random import choice
-class InstagramBot:
-    def __init__(self,username,password):
-        self.username=username
-        self.password=password
-        self.driver=webdriver.Firefox()
+import datetime
+
+import Tryforexploreacc
+class Tryagaın:
+    def __init__(self, username='', password='',time=60):
+         self.usernamex=username
+         self.passwordx=password
+         self.onlythem = ["3250759456", "2208388885", "6241679691", "5460601317", "3151687331", "6042552619", "1991903177",
+                      "7780971935", "6098326189", "2298597515", "5652484133", "2302559194", "1819469370",
+                     "4712779073", "4876075992",
+                     "7300451762", "1609544161","5923190686"]
+         self.bigaccs = ['2959196915', '2111407363', '237681409', '384728850', '251091171', '209500791', '2017572216',
+                    '554961375', '317932194', '270350200', '26352342', '173560420', '2041553882', '460711162',
+                    '204318825', '253160049', '1364414581']
+         self.api = InstagramAPI(username, password)
+         self.whotofollowlist = []
+         self.shitbool = False
+         self.templist = []
+         self.testone = []
+         self.username = []
+         self.private = []
+         self.followbool = False
+         self.unfollowbool = False
+         self.likebool = False
+         self.coommentbool = False
+         self.followcount = 0
+         self.likecount = 0
+         self.commentcount = 0
+         self.commentbx = 4
+         self.followercount=0
+         self.saythetime=time
+    def runtheprogram(self):
+        user=''
+        user=self.usernamex
+        logtxt = '---------PROGRAM STARTED İN THAT TİME:{}------------'.format(
+            str(datetime.datetime.now().strftime("%H:%M:%S")))
+        self.api.login()
+        while self.templist.__len__() < 6:
+            self.shitbool = False
+            temp = random.choice(self.bigaccs)
+            for i in range(self.templist.__len__()):
+                if temp == self.templist[i]:
+                    self.shitbool = True
+            if self.shitbool is False:
+                self.templist.append(temp)
+        for i in range(self.templist.__len__()):
+            tempfollowers = (self.whotofollow(self.templist[i]))
+            for z in range(tempfollowers.__len__()):
+                self.username.append(tempfollowers[z]['username'])
+                self.whotofollowlist.append(tempfollowers[z]['pk'])
+                self.private.append(tempfollowers[z]['is_private'])
+
+        self.writelog(logtxt,user)
+        print('{} account will be followed'.format(self.whotofollowlist.__len__()))
+        #
+        x = threading.Thread(target=self.follow, args=())  # Following
+        y = threading.Thread(target=self.unfollow, args=())  # Unfollowing
+        z = threading.Thread(target=self.likeandcommenthastags, args=())  # Givinglikeandcommentstohastags
+        c = threading.Thread(target=self.BlockControl, args=())  # Blockcontrolalghrıthm
+        print("Here we Go")
+        x.start()
+        y.start()
+        z.start()
+        c.start()
+
+        # x.join()
+        y.join()
+        z.join()
+        #
+        # BlockControl()
+        # print(xbool)
+        #
+
+        # api.getProfileData()
+        # print(api.LastJson)
+
+        print("We Re finished")
 
 
-# 14 tanesi boş
-
-    def login(self):
-        driver=self.driver
-        driver.get("https://www.instagram.com/accounts/login/?source=auth_switcher")
-        time.sleep(3)
-        namesection=driver.find_element_by_name("username")
-        namesection.send_keys(self.username)
-        passwordsetion=driver.find_element_by_name("password")
-        passwordsetion.send_keys(self.password)
-        passwordsetion.send_keys(Keys.RETURN)
-        time.sleep(3)
-        asdlas = driver.find_elements_by_css_selector("div[class='aOOlW  bIiDR  ']")
-        if asdlas is not None:
+    def whotofollow(self,pk):
+        followers = []
+        next_max_id = ''
+        while True:
             try:
-                NotifiationScreenclose = driver.find_element_by_css_selector("button[class='aOOlW   HoLwm ']")
-                NotifiationScreenclose.click()
-            except Exception as e:
+                self.api.getUserFollowers(pk, next_max_id)
+                temp = self.api.LastJson
+                for item in temp["users"]:
+                    followers.append(item)
                 time.sleep(2)
-
-
-
-        print("Successfully logged in")
-    def closeBrowser(self):
-        self.driver.close()
-    def explorelike(self):
-        time.sleep(10)
-        driver=self.driver
-        driver.get("https://www.instagram.com/explore/")
-        time.sleep(2)
-        hrefs=driver.find_elements_by_tag_name('a')
-        print(int(len(hrefs)))
-        i=0
-        IsComment=True
-        randomlist=["🤣","😍","😋","😇","😜","🙏","🤟","💗","◼","🇹🇷","♥","🌃","🌉","🧡","💛","💚","💙","💜","🖤","❣","💕","💞","💓","💗","💖","😀","😬","😁","😂","😃","😄","🤣","😅","😆","🤪"]
-        pichrefs=[elem.get_attribute('href') for elem in hrefs]
-        pichrefs=[href for href in pichrefs]
-        for pichref in pichrefs:
-            i=i+1
-            if i > 14:
-                driver.get(pichref)
-                time.sleep(2)
-                if len(driver.current_url)<30:
-                    print("Finish")
+                if not temp['big_list']:
                     break
-                try:
+                next_max_id = temp["next_max_id"]
+                if followers.__len__() > 150:
+                    break
+            except:pass
+        return followers
 
-                    driver.find_element_by_css_selector("button[class='dCJp8 afkep _0mzm-']").click()
-                    time.sleep(1)
-                    ss = driver.find_element_by_css_selector("textarea[class='Ypffh']")
-                    ss.click()
-                    if i % 5 == 0 and IsComment == True:
-                        yy = driver.find_element_by_xpath(
-                            "/html/body/span/section/main/div/div/article/div[2]/section[3]/div/form/textarea")
-                        yy.click()
-                        driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
-                        yy.send_keys("{}  {}".format(choice(randomlist),choice(randomlist)))
-                        yy.send_keys(Keys.RETURN)
+    def follow(self):
+        print("Start FOLLOWİNG!!!!")
+        while 1:
+            try:
+                x=60
+                if self.whotofollowlist.__len__()<x:
+                    x=self.whotofollowlist.__len__()
+                for i in range(x):
+                    if self.followbool == True:
+                        break
+                    else:
+                        self.api.follow(self.whotofollowlist[i])
+                        self.followcount = 1 + self.followcount
+                        print("FOLLOWED: " + self.username[i] + ' ---' + str(
+                            datetime.datetime.now().strftime("%H:%M:%S")) + " ---İs Private ?::: {}".format(
+                            self.private[i]))
+                    time.sleep(self.saythetime*2)
+            except:pass
+    def unfollow(self):
+        print("Start UNFOLLOWİNG!!!!")
 
-                        time.sleep(25)
+        while 1:
+            try:
 
-                except Exception as e:
-                    time.sleep(5)
 
-    def MakePhone(self):
-        user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"
-        profile = webdriver.FirefoxProfile
-        profile.set_preference("general.useragent.override", user_agent)
-        driver = webdriver.Firefox(profile)
-        driver.set_window_size(360, 640)
-        # https: // www.toolsqa.com / selenium - webdriver / custom - firefox - profile /
-    def LikeTaggedPhotos(self):
-        driver=self.driver
-        # print("Which Hastag Do You Want to Like")
-        # Hastag=input()
-        # Hastag=Hastag.replace(" ","")
-        IsComment=True
-        # while 1:
-        #     print("Do You Want to comment?")
-        #     print("0 For NO and 1 For YES!")
-        #     Comment = input()
-        #     if Comment=="1":
-        #         IsComment=True
-        #         print("OK Thank You:)")
-        #         break
-        #     elif Comment=="0":
-        #         IsComment=False
-        #         print("OK Thank YOU:)")
-        #         break
-        #     else:
-        #         continue
 
-        Hastag = ["selfie", "follow", "istanbul", "aşk", "bff", "happy", "güzel", "gezi", "mode", "moda", "moda",
-                  "yemek", "yemek", "komik", "komik", "hayat", "hayat", "tbt", "life", "smile","cool","amazing"]
-        driver.get("https://www.instagram.com/explore/tags/"+str(choice(Hastag))+"/")
-        time.sleep(2)
+                    followers = []
+                    tmpfollowers = self.api.getTotalSelfFollowers()
+                    for i in range(tmpfollowers.__len__()):
+                        followers.append(tmpfollowers[i]['pk'])
+                    # benim takip ettiklerim
+                    tempfollowing = self.api.getTotalSelfFollowings()
+                    following = []
+                    for i in range(tempfollowing.__len__()):
+                        following.append(tempfollowing[i]['pk'])
+                    for i in range(following.__len__()):
+                        if self.unfollowbool == True:
+                            break
+                        else:
+                            if (following[i] in followers) is False:
+                                if (following[i] in self.whotofollowlist) is False:
+                                    if (str(following[i]) in self.onlythem) is False:
+                                        self.api.unfollow(following[i])
+                                        print("unfollow ")
+                                        time.sleep(self.saythetime)
+
+
+            except:pass
+
+    def likeandcommenthastags(self):
+        self.timesleepcounter()
+        if self.followercount < 500:
+            self.commentbx = 12
+        commentcounter =0
         randomlist = ["🤣", "😍", "😋", "😇", "😜", "🙏", "🤟", "💗", "◼", "🇹🇷", "♥", "🌃", "🌉", "🧡", "💛", "💚",
                       "💙", "💜", "🖤", "❣", "💕", "💞", "💓", "💗", "💖", "😀", "😬", "😁", "😂", "😃", "😄", "🤣",
                       "😅", "😆", "🤪"]
+        Hastag = ["selfie", "follow", "istanbul", "aşk", "bff", "happy", "güzel", "gezi", "mode", "moda", "moda",
+                  "yemek", "yemek", "komik", "komik", "hayat", "hayat", "tbt", "life", "smile", "cool", "amazing"]
 
-        hrefs=driver.find_elements_by_tag_name('a')
-        pic_hrefs=[elem.get_attribute('href') for elem in hrefs]
-        pic_hrefs=[href for href in pic_hrefs]
-        i=0
-        for pic_href in pic_hrefs:
-            driver.get(pic_href)
-            time.sleep(1)
-            if len(driver.current_url)<30:
-                print("Finish")
-                break
+        randomsecondlist = ["mükemmel olmuş", "süpermiş", "LOL", "Çok Güzel", "Cidden Mükemmelmiş", "Çok Beğendim",
+                            "Bir Tek Ben Beğenmiş Olamam", "Bu da Ne Böyle", "Kaçırdıgım Bir şey mi var?",
+                            "Harikaaaaaa", "Aşk", "harika ötesi",
+                            "Mükemmel demek az kalır", "İnanması güç", "Lütfen Takip Edib Süprizlerim Var"]
+        while 1:
             try:
-                driver.find_element_by_css_selector("button[class='dCJp8 afkep _0mzm-']").click()
-                time.sleep(1)
-                ss=driver.find_element_by_css_selector("textarea[class='Ypffh']")
-                ss.click()
-                if i%5==0 and IsComment==True:
-                    yy = driver.find_element_by_xpath(
-                        "/html/body/span/section/main/div/div/article/div[2]/section[3]/div/form/textarea")
-                    yy.click()
-                    driver.execute_script("window.scrollTo(0,document.body.scrollHeight);")
-                    yy.send_keys("{}  {}".format(choice(randomlist),choice(randomlist)))
-                    yy.send_keys(Keys.RETURN)
+                self.api.getHashtagFeed(random.choice(Hastag), "")
+                tagFeedJson = self.api.LastJson["items"]
+                print("{} posts will be liked".format(len(tagFeedJson)))
+                for i in range(10):
+                    if self.likebool == True:
+                        break
+                    listofcomments = []
 
-                time.sleep(25)
-                i=i+1
-            except Exception as e:
-                time.sleep(15)
-    def FollowTheGuysFollowers(self):
-        time.sleep(1)
-        driver=self.driver
-        People = ["aogofficial", "aykutelmas", "halilibrahimgoker", "cezmikalorifer", "jahrein", "wtcn",
-                  "kendinemuzisyen.jpg", "reynmen","atakanozyurt","remixadam","oguzhanugur_","ilberortayli","cmylmz",
-                  "incicaps","onediocom","cagritaner","danlabilic"]
-        driver.get("https://www.instagram.com/"+str(choice(People)))
-        time.sleep(3)
-        driver.find_element_by_xpath("/html/body/span/section/main/div/header/section/ul/li[2]/a").click()
-        time.sleep(12)
-        i=0
-        z=0
-        try:
-            godownbro=driver.find_element_by_css_selector("button[class='_0mzm- sqdOP  L3NKy       ']")
-            godownbro.send_keys(Keys.END)
-        except Exception as e:
-            time.sleep(3)
+                    mediathings = tagFeedJson[i]['pk']
+                    self.api.like(mediathings)
+                    self.likecount = 1 + self.likecount
+                    print("Liked ")
+                    commentcounter = commentcounter + 1
+                    if commentcounter % self.commentbx == 0 and self.coommentbool == False:
 
-        time.sleep(1)
-        follows=driver.find_elements_by_css_selector("button[class='_0mzm- sqdOP  L3NKy       ']")
-        clicks=[follow for follow in follows]
-        for click in reversed(clicks):
+                        self.api.getMediaComments(str(mediathings))
+                        try:
+                            for z in range(10):
+                                listofcomments.append(self.api.LastJson['comments'][z]['text'])
+                        except:
+                            print()
 
-            try:
-                click.click()
-                i=i+1
-                print("{}.Follow".format(i))
-                time.sleep(25)
-            except Exception as e:
-                time.sleep(1)
+                        def takecomment(trynumber):
+                            trynumber = trynumber + 1
+                            if listofcomments.__len__() > 0:
+                                comment = random.choice(listofcomments)
+                                if ('@' in comment) is False and listofcomments.__len__() > 0:
+                                    return comment
+                                else:
+                                    if trynumber < 10:
+                                        takecomment(trynumber)
+                            else:
+                                return "{}{}{}".format(random.choice(randomlist), random.choice(randomsecondlist),
+                                                       random.choice(randomlist))
+
+                        self.api.comment(mediathings, takecomment(0))
+                        self.commentcount = 1 + self.commentcount
+                        print("Commented")
+                    time.sleep(self.saythetime)
+            except:
+                self.likeandcommenthastags()
+
+    def BlockControl(self):
+        user=self.usernamex
+        while 1:
+            tt = self.api.LastResponse
+            qq = self.api.qq
+            if ("400" in str(tt)) is True:
+                if ("comment" in str(qq)) and ("block" in str(qq))and (self.coommentbool is False):
+                    self.coommentbool = True
+                    arg = "comment"
+                    q = threading.Thread(target=self.MakeitFalse, args=(arg,))
+                    forlog = 'Comment is Blocked We Comment {} Times and the clock is {} '.format(str(self.commentcount),
+                                                                                                  str(
+                                                                                                      datetime.datetime.now().strftime(
+                                                                                                          "%H:%M:%S")))
+                    if q.isAlive():
+                        continue
+                    else:
+                        self.writelog(forlog,user)
+                        q.start()
+                if ("like" in str(qq)) and ("block" in str(qq))and (self.likebool is False):
+                    arg = "like"
+                    ü = threading.Thread(target=self.MakeitFalse, args=(arg,))
+                    forlog = 'Like is Blocked We Liked {} Times and the clock is {} '.format(str(self.likecount), str(
+                        datetime.datetime.now().strftime("%H:%M:%S")))
+                    self.likebool = True
+                    if ü.isAlive():
+                        pass
+                    else:
+                        self.writelog(forlog, user)
+
+                        ü.start()
+                if ("follow" in str(qq)) and ("block" in str(qq))and (self.followbool is False):
+                    arg = "follow"
+                    ğ = threading.Thread(target=self.MakeitFalse, args=(arg,))
+                    forlog = 'Follow is Blocked We Followed {} Times and the clock is {} '.format(str(self.followcount), str(
+                        datetime.datetime.now().strftime("%H:%M:%S")))
+                    self.followbool = True
+                    if ğ.isAlive():
+                        pass
+                    else:
+                        self.writelog(forlog, user)
+                        ğ.start()
+                if ("unfollow" in str(qq)) and ("block" in str(qq))and (self.unfollowbool is False):
+                    arg = "unfollow"
+                    ş = threading.Thread(target=self.MakeitFalse, args=(arg,))
+                    self.unfollowbool = True
+
+                    if ş.isAlive():
+                        pass
+                    else:
+                        ş.start()
+    def MakeitFalse(self,boolname=''):
+        time.sleep(3600)
+        if boolname == "comment":
+            self.coommentbool = False
+        if boolname == "like":
+            self.likebool = False
+        if boolname == "follow":
+            self.followbool = False
+        if boolname == "unfollow":
+            self.unfollowbool = False
+
+    def timesleepcounter(self):
+        myfollowers = self.api.getTotalSelfFollowers()
+        self.followercount=myfollowers.__len__()
+
+    def writelog(self,writethat,username):
+        myfile = open('logs.txt', 'a')
+        myfile.writelines(writethat+username+"\n")
+        myfile.close()
+print("username")
+username=input()
+print("password")
+pss=input()
+x=Tryagaın(username,pss,120)
+# y=Tryagaın('İDS','PSS')
+# z=Tryagaın('İDS','psS')
+x=threading.Thread(target=x.runtheprogram,args=())
+x.start()
 
 
+time.sleep(3)
+qqq=threading.Thread(target=Tryforexploreacc.run,args=())
+qqq.start()
+time.sleep(10)
 
+# y=threading.Thread(target=y.runtheprogram,args=())
 
+# y.start()
+time.sleep(10)
+# z=threading.Thread(target=z.runtheprogram,args=())
 
-# Dil Sorunu Yuzunden sadece Türkçe olarak çalismakta Dil sorununu halledınce (butun dillerde dakıka ne demek ) çalısacak. Yapıcagımı sanmıyorum :)
-    # def TakeTimeTry(self):
-    #     driver=self.driver
-    #     driver.get("https://www.instagram.com/p/BvU5nsAARhZ/")
-    #     time.sleep(3)
-    #     tsme=driver.find_element_by_css_selector("time[class='_1o9PC Nzb55']")
-    #     whattime=tsme.get_attribute("innerHTML")
-    #     asd=str(whattime)
-    #     asd=int(asd.find("minutes"))
-    #     if asd>0:
-    #         print("Dakika var")
-
-
-
-# print("Your username:")
-# username=input()
-# print("Your Password(You Are Safe:))")
-# password=input()
-print(  " username:")
-kadı=input()
-print("Password:")
-pswrd=input()
-
-mroussbot=InstagramBot(kadı,pswrd)
-i=0
-mroussbot.login()
-for i in range(1,1000):
-    mroussbot.FollowTheGuysFollowers()
-    # mroussbot.MakePhone()
-    mroussbot.LikeTaggedPhotos()
-    time.sleep(5)
-    mroussbot.explorelike()
-    time.sleep(5)
-
+# z.start()
+time.sleep(10)
+# z.join()
+x.join()
+# y.join()
+print('scaryashell')
 
 
